@@ -5,7 +5,7 @@ http://www.neo4j.org/download
 
 Dataset from the movilens page :
         wget http://www.grouplens.org/system/files/ml-100k.zip
-The data are expected in the ml-100k/ directory
+The data are expected in the ml-100k/ directory after extraction
 
 Imported as a graph:
 * user node (with properties as in u.user)
