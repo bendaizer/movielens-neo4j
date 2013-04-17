@@ -10,7 +10,7 @@ EXEC="ImportML"
 
 T="$(date +%s)"
 
-javac -classpath $CLASSPATH $EXEC.java && java -Xmx6g -cp $CLASSPATH $EXEC
+javac -classpath $CLASSPATH $EXEC.java && java -Xmx4g -cp $CLASSPATH $EXEC
 
 # Time elapsed  After work
 T="$(($(date +%s)-T))"

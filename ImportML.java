@@ -48,14 +48,6 @@ public class ImportML{
 
     public static void main(String[] args) {
         deleteFileOrDirectory(db_directory);
-
-        // BatchInserter inserter = BatchInserters.inserter( DB_PATH );
-        // BatchInserterIndexProvider indexProvider = new LuceneBatchInserterIndexProvider( inserter );
-        // BatchInserterIndex user_index = indexProvider.nodeIndex("users", MapUtil.stringMap("type", "exact"));
-        // BatchInserterIndex movie_index = indexProvider.nodeIndex("movies", MapUtil.stringMap("type", "exact"));
-        // BatchInserterIndex genre_index = indexProvider.nodeIndex("genres", MapUtil.stringMap("type", "exact"));
-        // BatchInserterIndex occupation_index = indexProvider.nodeIndex("occupation", MapUtil.stringMap("type", "exact"));
-
         try{
 
             List<HashMap<String,Object>> genres_list = new ArrayList<HashMap<String,Object>>();
