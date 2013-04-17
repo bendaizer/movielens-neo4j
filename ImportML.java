@@ -59,7 +59,35 @@ public class ImportML{
         try{
 
             List<HashMap<String,Object>> genres_list = new ArrayList<HashMap<String,Object>>();
+            List<HashMap<String,Object>> occupations_list = new ArrayList<HashMap<String,Object>>();
+            List<HashMap<String,Object>> users_list = new ArrayList<HashMap<String,Object>>();
+            List<HashMap<String,Object>> movies_list = new ArrayList<HashMap<String,Object>>();
+            List<HashMap<String,Object>> data_list = new ArrayList<HashMap<String,Object>>();
+
+
             genres_list = importFile(GENRE_FILE,new ArrayList<String>(Arrays.asList("genre","id_genre")));
+            occupations_list = importFile(OCCUPATION_FILE,new ArrayList<String>(Arrays.asList("occupation")));
+
+
+            ArrayList<String> user_label = new ArrayList<String>(Arrays.asList("user_id", "age", "gender",
+                                                                            "occupation", "zip"));
+            users_list = importFile(USER_FILE,user_label);
+
+
+            ArrayList<String> movie_label = new ArrayList<String>(
+                                            Arrays.asList("movie_id","title","date","imdb",
+                                            "unknown","Action","Adventure","Animation","Children","Comedy",
+                                            "Crime","Documentary","Drama","Fantasy","Film_Noir","Horror",
+                                            "Musical","Mystery","Romance","Sci_Fi","Thriller","War","Western")
+                                            );
+            movies_list = importFile(ITEM_FILE, movie_label);
+
+            data_list = importFile(DATA_FILE,new ArrayList<String>(Arrays.asList("user_id","movie_id","rating","timestamp"));
+
+            for ( Map m : occupations_list){
+                System.out.println(m);
+            }
+
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -68,8 +96,6 @@ public class ImportML{
             indexProvider.shutdown();
             inserter.shutdown();
         }
-
-
     }
 
     private static List<HashMap<String,Object>> importFile(String file, ArrayList<String> labels){
@@ -84,6 +110,7 @@ public class ImportML{
             String line;
             String resource_name;
             String[] tokens;
+            //FIXME should compare labels_size with number of columns in file at come point!
             int num_column = labels.size();
 
             while ((line = reader.readLine()) != null){
