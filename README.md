@@ -5,7 +5,7 @@ http://www.neo4j.org/download
 
 Dataset from the movilens page :
         wget http://www.grouplens.org/system/files/ml-100k.zip
-The data are expected in the ml-100k/ directory
+The data are expected in the ml-100k/ directory after extraction
 
 You can use another set, simply replace ml-100k in DATA_DIR in ImportML.java (I didn't test it yet)
 
