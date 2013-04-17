@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -30,13 +33,13 @@ import org.neo4j.unsafe.batchinsert.BatchInserterIndexProvider;
 import org.neo4j.index.lucene.unsafe.batchinsert.LuceneBatchInserterIndexProvider;
 
 public class ImportML{
-    private static final String OCCUPATION_FILE= "u.occupation";
-    private static final String GENRE_FILE= "u.genre";
-    private static final String USER_FILE= "u.user";
-    private static final String ITEM_FILE= "u.item";
-    private static final String DATA_FILE= "u.data";
-
+    private static final String OCCUPATION_FILE= "ml-100k/u.occupation";
+    private static final String GENRE_FILE= "ml-100k/u.genre";
+    private static final String USER_FILE= "ml-100k/u.user";
+    private static final String ITEM_FILE= "ml-100k/u.item";
+    private static final String DATA_FILE= "ml-100k/u.data";
     private static final String DB_PATH = "data/movielens.db";
+
     private static File db_directory = new File(DB_PATH);
     private static GraphDatabaseService graphDb;
     private static Relationship relationship;
@@ -52,9 +55,11 @@ public class ImportML{
         BatchInserterIndex movie_index = indexProvider.nodeIndex("movies", MapUtil.stringMap("type", "exact"));
         BatchInserterIndex genre_index = indexProvider.nodeIndex("genres", MapUtil.stringMap("type", "exact"));
         BatchInserterIndex occupation_index = indexProvider.nodeIndex("occupation", MapUtil.stringMap("type", "exact"));
+
         try{
 
-            logger.info("it works, let's get started");
+            List<HashMap<String,Object>> genres_list = new ArrayList<HashMap<String,Object>>();
+            genres_list = importFile(GENRE_FILE,new ArrayList<String>(Arrays.asList("genre","id_genre")));
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -65,6 +70,51 @@ public class ImportML{
         }
 
 
+    }
+
+    private static List<HashMap<String,Object>> importFile(String file, ArrayList<String> labels){
+        FileInputStream fstream = null;
+        BufferedReader reader = null;
+        HashMap<String, Object> properties = new HashMap<String, Object>();
+        List<HashMap<String,Object>> nodes_list = new ArrayList<HashMap<String,Object>>();
+
+        try{
+            fstream = new FileInputStream(file);
+            reader = new BufferedReader(new InputStreamReader(fstream, "UTF-8"));
+            String line;
+            String resource_name;
+            String[] tokens;
+            int num_column = labels.size();
+
+            while ((line = reader.readLine()) != null){
+                try{
+                    tokens = line.split("\\|");
+                    properties = new HashMap();
+                    for (int i=0; i<num_column ; i++){
+                        properties.put(labels.get(i),tokens[i]);
+                    }
+                    nodes_list.add(properties);
+
+                }catch (Exception e){
+                    logger.warning("Import of file "+file+" - Bad Line  :"+line);
+                    logger.warning(e.getMessage());
+                }
+
+            }
+
+
+        } catch (Exception e) {
+            logger.warning("couldn't import file "+file);
+            logger.warning(e.getMessage());
+        }finally{
+            try{
+                fstream.close();
+                reader.close();
+            }catch(Exception e){
+            }
+        }
+
+        return nodes_list;
     }
 
 

@@ -6,3 +6,8 @@ get the dataset from the movilens page :
 Imported as a graph:
 * user node (property: {age, gender})
 * movie node (property: {name, date})
+* genre node (linked to movie)
+* occupation node (linked to user)
+
+For simplicity the rating will be transformed to a like/dislike relationship.
+like if rating > 2 else dislike.
