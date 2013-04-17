@@ -33,11 +33,12 @@ import org.neo4j.unsafe.batchinsert.BatchInserterIndexProvider;
 import org.neo4j.index.lucene.unsafe.batchinsert.LuceneBatchInserterIndexProvider;
 
 public class ImportML{
-    private static final String OCCUPATION_FILE= "ml-100k/u.occupation";
-    private static final String GENRE_FILE= "ml-100k/u.genre";
-    private static final String USER_FILE= "ml-100k/u.user";
-    private static final String ITEM_FILE= "ml-100k/u.item";
-    private static final String DATA_FILE= "ml-100k/u.data";
+    private static final String DATA_DIR = "ml-100k/";
+    private static final String OCCUPATION_FILE = DATA_DIR+"u.occupation";
+    private static final String GENRE_FILE = DATA_DIR+"u.genre";
+    private static final String USER_FILE = DATA_DIR+"u.user";
+    private static final String ITEM_FILE = DATA_DIR+"u.item";
+    private static final String DATA_FILE = DATA_DIR+"u.data";
     private static final String DB_PATH = "data/movielens.db";
 
     private static File db_directory = new File(DB_PATH);

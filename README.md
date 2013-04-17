@@ -7,6 +7,8 @@ Dataset from the movilens page :
         wget http://www.grouplens.org/system/files/ml-100k.zip
 The data are expected in the ml-100k/ directory
 
+You can use another set, simply replace ml-100k in DATA_DIR in ImportML.java (I didn't test it yet)
+
 Imported as a graph:
 * user node (with properties as in u.user)
 * movie node (with properties as in u.item)
