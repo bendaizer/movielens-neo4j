@@ -69,11 +69,12 @@ public class ImportML{
 
             ArrayList<String> movie_label = new ArrayList<String>(
                                             Arrays.asList("movie_id","title","date","imdb",
-                                            "unknown","Action","Adventure","Animation","Children","Comedy",
-                                            "Crime","Documentary","Drama","Fantasy","Film_Noir","Horror",
-                                            "Musical","Mystery","Romance","Sci_Fi","Thriller","War","Western")
+                                            "unknown","Action","Adventure","Animation","Children's","Comedy",
+                                            "Crime","Documentary","Drama","Fantasy","Film-Noir","Horror",
+                                            "Musical","Mystery","Romance","Sci-Fi","Thriller","War","Western")
                                             );
             movies_list = importFile(ITEM_FILE, movie_label);
+            //FIXME there's a problem with "unknown“, it takes imdb field value, and imdb field is empty !
 
             data_list = importData(DATA_FILE,new ArrayList<String>(Arrays.asList("user_id","movie_id","rating","timestamp")));
 
@@ -90,8 +91,20 @@ public class ImportML{
             user_id_node = node_inserter(users_list, "users", "user_id");
             movie_id_node = node_inserter(movies_list, "movies", "movie_id");
 
+            ArrayList<String> movie_genre = new ArrayList<String>(
+                                            Arrays.asList("Action","Adventure","Animation","Children's","Comedy",
+                                            "Crime","Documentary","Drama","Fantasy","Film-Noir","Horror",
+                                            "Musical","Mystery","Romance","Sci-Fi","Thriller","War","Western")
+                                            );
 
-            // for ( Map m : data_list){
+            for (String genre_label : movie_genre) {
+                MovieGenreRelationshipInserter("IS_GENRE", movies_list, movie_id_node, genre_node, "movie_id", genre_label);
+            }
+
+
+            // System.out.println(movie_genre.toString());
+
+            // for ( Map m : genre_node){
             //     System.out.println(m);
             // }
 
@@ -105,15 +118,87 @@ public class ImportML{
         }
     }
 
+    private static void MovieGenreRelationshipInserter(String relation_type, List<HashMap<String,Object>> relation_map, Map<String,Long> node1_id, Map<String,Long> node2_id, String label1, String label2 ){
+
+        /****************************
+
+        ****************************/
+
+        logger.info("Inserting relationship "+relation_type+"for genre : "+label2);
+        BatchInserter inserter = BatchInserters.inserter( DB_PATH );
+        long node1, node2;
+
+        // logger.info("label1 : "+label1+" --- label2 : "+label2);
+
+        // logger.info(label2+" : "+ node2_id.get(label2).toString());
+
+                for (Map<String, Object> map : relation_map) {
+                    if(map.get(label2).toString().equals("1")){
+                    try{
+
+
+                            // logger.info(map.get("title").toString()+" : "+ map.get(label2).toString());
+
+                            node1=node1_id.get(map.get(label1));
+                            node2=node2_id.get(label2);
+                            RelationshipType reltype = DynamicRelationshipType.withName( relation_type );
+
+
+                        // To set properties on the relationship, use a properties map
+                        // instead of null as the last parameter.
+
+                            inserter.createRelationship( node1, node2, reltype, null );
+
+
+                    } catch(NullPointerException e){
+                        logger.warning("NullPointerException : relation will be ignored ...");
+                        logger.warning("\t"+map+"    : "+node1_id.get(map.get(label1))+", "+node2_id.get(label2));
+                    }
+                }}
+        inserter.shutdown();
+    }
+
+
+    private static void RelationshipInserter(String relation_type, List<HashMap<String,Object>> relation_map, Map<String,Long> node1_id, Map<String,Long> node2_id, String label1, String label2 ){
+        /****************************
+
+        ****************************/
+
+        logger.info("Inserting relationship "+relation_type);
+        BatchInserter inserter = BatchInserters.inserter( DB_PATH );
+        long node1, node2;
+
+        for (Map<String, Object> map : relation_map) {
+            try{
+                node1=node1_id.get(map.get(label1));
+                node2=node2_id.get(map.get(label2));
+                RelationshipType reltype = DynamicRelationshipType.withName( relation_type );
+                // logger.info(map.toString());
+                // logger.info(map.get(label1).toString());
+                // logger.info(node1_id.toString());
+
+        // To set properties on the relationship, use a properties map
+        // instead of null as the last parameter.
+
+                inserter.createRelationship( node1, node2, reltype, null );
+
+            } catch(NullPointerException e){
+                logger.warning("NullPointerException : relation will be ignored ...");
+                logger.warning("\t"+map+"    : "+node1_id.get(map.get(label1))+", "+node2_id.get(map.get(label2)));
+            }
+        }
+        inserter.shutdown();
+    }
+
+
+
 
     private static Map<String,Long> node_inserter(List<HashMap<String,Object>> nodes_map, String indexName, String indexProperty){
         /****************************
          Take list of properties, insert the corresponding nodes
          returns a map between ID or type and nodeID for relationships
          ****************************/
-
-        System.out.println("----");
-        System.out.println("Inserting nodes "+indexName);
+        // logger.info("Inserting nodes "+indexName);
 
         Map<String,Long> property_id = new HashMap<String, Long>();
         BatchInserter inserter = BatchInserters.inserter( DB_PATH );
@@ -122,22 +207,18 @@ public class ImportML{
         BatchInserterIndex theIndex = indexProvider.nodeIndex(indexName, MapUtil.stringMap("type", "exact"));
         theIndex.setCacheCapacity(indexProperty,500000);
 
-
-        // Map<String,Object> result_map = new HashMap<String,Object>();
         int size=0;
 
         for (Map<String, Object> map : nodes_map) {
-
-                long node = inserter.createNode(map);
-                theIndex.add(node,map);
-                property_id.put(map.get(indexProperty).toString(),node);
-
+            long node = inserter.createNode(map);
+            theIndex.add(node,map);
+            property_id.put(map.get(indexProperty).toString(),node);
             size++;
         }
 
         indexProvider.shutdown();
         inserter.shutdown();
-        System.out.println("size of import : "+size);
+        // logger.info("size of import : "+size);
 
         return property_id;
 
