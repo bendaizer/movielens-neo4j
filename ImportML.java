@@ -102,9 +102,13 @@ public class ImportML{
             }
 
 
+
+            UserMovieRelationshipInserter(data_list, user_id_node, movie_id_node);
+
+
             // System.out.println(movie_genre.toString());
 
-            // for ( Map m : genre_node){
+            // for ( Map m : data_list){
             //     System.out.println(m);
             // }
 
@@ -118,13 +122,72 @@ public class ImportML{
         }
     }
 
+    private static void UserMovieRelationshipInserter( List<HashMap<String,Object>> relation_map, Map<String,Long> node1_id, Map<String,Long> node2_id ){
+        /****************************
+
+        ****************************/
+
+        logger.info("Inserting user rating movie relationship ");
+        BatchInserter inserter = BatchInserters.inserter( DB_PATH );
+        long node1, node2;
+        String rating;
+
+        for (Map<String, Object> map : relation_map) {
+            try{
+                node1=node1_id.get(map.get("user_id"));
+                node2=node2_id.get(map.get("movie_id"));
+                rating=map.get("rating").toString();
+
+                RelationshipType reltype = DynamicRelationshipType.withName( rating );
+        // To set properties on the relationship, use a properties map
+        // instead of null as the last parameter.
+                inserter.createRelationship( node1, node2, reltype, null );
+
+            } catch(NullPointerException e){
+                logger.warning("NullPointerException : relation will be ignored ...");
+                // logger.warning("\t"+map+"    : "+node1_id.get(map.get(label1))+", "+node2_id.get(map.get(label2)));
+            }
+        }
+        inserter.shutdown();
+    }
+    private static void RelationshipInserter(String relation_type, List<HashMap<String,Object>> relation_map, Map<String,Long> node1_id, Map<String,Long> node2_id, String label1, String label2 ){
+        /****************************
+
+        ****************************/
+
+        logger.info("Inserting relationship "+relation_type);
+        BatchInserter inserter = BatchInserters.inserter( DB_PATH );
+        long node1, node2;
+
+        for (Map<String, Object> map : relation_map) {
+            try{
+                node1=node1_id.get(map.get(label1));
+                node2=node2_id.get(map.get(label2));
+                RelationshipType reltype = DynamicRelationshipType.withName( relation_type );
+                // logger.info(map.toString());
+                // logger.info(map.get(label1).toString());
+                // logger.info(node1_id.toString());
+
+        // To set properties on the relationship, use a properties map
+        // instead of null as the last parameter.
+
+                inserter.createRelationship( node1, node2, reltype, null );
+
+            } catch(NullPointerException e){
+                logger.warning("NullPointerException : relation will be ignored ...");
+                logger.warning("\t"+map+"    : "+node1_id.get(map.get(label1))+", "+node2_id.get(map.get(label2)));
+            }
+        }
+        inserter.shutdown();
+    }
+
     private static void MovieGenreRelationshipInserter(String relation_type, List<HashMap<String,Object>> relation_map, Map<String,Long> node1_id, Map<String,Long> node2_id, String label1, String label2 ){
 
         /****************************
 
         ****************************/
 
-        logger.info("Inserting relationship "+relation_type+"for genre : "+label2);
+        // logger.info("Inserting relationship "+relation_type+" for genre : "+label2);
         BatchInserter inserter = BatchInserters.inserter( DB_PATH );
         long node1, node2;
 
@@ -159,36 +222,7 @@ public class ImportML{
     }
 
 
-    private static void RelationshipInserter(String relation_type, List<HashMap<String,Object>> relation_map, Map<String,Long> node1_id, Map<String,Long> node2_id, String label1, String label2 ){
-        /****************************
 
-        ****************************/
-
-        logger.info("Inserting relationship "+relation_type);
-        BatchInserter inserter = BatchInserters.inserter( DB_PATH );
-        long node1, node2;
-
-        for (Map<String, Object> map : relation_map) {
-            try{
-                node1=node1_id.get(map.get(label1));
-                node2=node2_id.get(map.get(label2));
-                RelationshipType reltype = DynamicRelationshipType.withName( relation_type );
-                // logger.info(map.toString());
-                // logger.info(map.get(label1).toString());
-                // logger.info(node1_id.toString());
-
-        // To set properties on the relationship, use a properties map
-        // instead of null as the last parameter.
-
-                inserter.createRelationship( node1, node2, reltype, null );
-
-            } catch(NullPointerException e){
-                logger.warning("NullPointerException : relation will be ignored ...");
-                logger.warning("\t"+map+"    : "+node1_id.get(map.get(label1))+", "+node2_id.get(map.get(label2)));
-            }
-        }
-        inserter.shutdown();
-    }
 
 
 
