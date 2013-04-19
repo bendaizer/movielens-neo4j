@@ -19,6 +19,7 @@ LIKE if rating > 2 else DISLIKE.
 To use it
         chmod +x run.sh
         ./run.sh
-        
-        
+
+
 (A lot of cleaning left to do, but will do the job !!)
+TODO : separate the reading of data files and the import in neo4j
